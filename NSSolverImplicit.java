@@ -1,6 +1,35 @@
 import java.util.ArrayList;
 
 public class NSSolverImplicit {
+	/* 
+	 * Solves the compressible navier stokes equation
+	 * 
+	 * The equation is solved using a backward time central space scheme 
+	 * The continuity equation is solved using a forward time central space scheme
+	 * The energy equation is solved using a forward time central space scheme
+	 * 
+	 * An Alternating direction implicit method to account for the two dimensions
+	 * 
+	 * The calculation is done with a staggered grid where the velocities are calculated
+	 * at the nodes and pressure, density and velocity are calculated in the center of each cell
+	 * 
+	 * Some simplification have been made, ie the divergence part of the NS equation is not included
+	 * 
+	 * To ensure stability, dt should be less than 0.002*Math.min(dx, dy)
+	 * 
+	 * Known issues:
+	 * 	-	No inlet or outlet
+	 * 	-	Only periodic in all directions or none
+	 * 	-	Is not optimized for speed. 
+	 * 	
+	 * Howto simulate:
+	 * 	-	Initially the simulation starts with T=300K, P=1atm, u=v=0
+	 * 	-	Either set the velocity at a single point with setVel(i,j,vel,x-dir)
+	 * 		or add/remove energy in a cell with the function addEnergy(i,j,energy)
+	 * 		this could be heat or radiation
+	 * 	-	Step the simulation one timestep with step(dt)
+	 * 	-	Read the velocity/pressure/temperature with the functions: getU,getV,getP,getT
+	 */ 
 
 	final boolean periodic = true; // Used to tell if the boundaries should be
 									// periodic
@@ -38,10 +67,9 @@ public class NSSolverImplicit {
 
 	private double my = 1.81e-5; // Viscosity
 
-	public double Cv = 4.1796 * (100 * 100 * 100);// 0.001297 * (100 * 100 *
-													// 100); // Heat Capacity at
+	public double Cv = 0.001297 * (100 * 100 * 100); // Heat Capacity at
 													// constant
-	// volume J/(cm3*K)
+	// volume J/(m3*K)
 	public double R = 287.04; // Spesiffic gass constant Air
 
 	public NSSolverImplicit(final int nx, final int ny, final double dx,
@@ -610,7 +638,7 @@ public class NSSolverImplicit {
 
 	/*
 	 * Create a refined grid of the velocities with linear interpolation between
-	 * each point
+	 * each point. Does not work as intended yet.
 	 */
 	public double[][] refineU(int nnx, int nny) {
 
